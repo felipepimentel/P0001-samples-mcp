@@ -1,0 +1,45 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# MCP Hello World Server Rule
+
+The main entry point for the MCP server is [01-hello.py](mdc:01-hello.py).
+
+Setup, Inspector usage, troubleshooting, and best practices are in [README.md](mdc:README.md).
+
+## MCP Python CLI & Inspector Best Practices
+- **Do NOT** add `if __name__ == "__main__"` blocks or manual startup code. The MCP CLI manages server lifecycle.
+- **Do NOT** print custom startup messages or logs in your script. All output is managed by the MCP CLI. Printing to stdout can break the MCP protocol and cause client/server issues.
+- For feedback or logs, use CLI flags like `--verbose` or `--debug` with the MCP CLI, not print statements in your code.
+- All dependencies and Python version requirements are managed via [pyproject.toml](mdc:pyproject.toml) and `uv sync`.
+- Always use `uv` for environment and dependency management. Do not use pip or requirements.txt.
+
+## Inspector Usage
+- **Dev mode:**
+  - `uv run mcp dev 01-hello.py` starts the Inspector at http://127.0.0.1:6274 for interactive exploration and debugging.
+- **Manual/npx mode:**
+  - `npx @modelcontextprotocol/inspector uv run mcp run 01-hello.py` runs the Inspector for any MCP server, even fora do dev mode.
+  - If you see `PORT IS IN USE`, use `lsof -i :6277 | grep LISTEN` and `kill <pid>` to free the port.
+- Inspector is only available in dev mode or via npx/manual.
+- If Inspector does not connect, check for protocol errors, port conflicts, or browser issues. Try the VS Code Simple Browser if Chrome/Edge fails.
+
+## Creating New Examples
+- Place new server examples in the project root or a clearly named subdirectory, following the naming conventions already in use.
+- Do not duplicate files with similar names (singular/plural, synonyms).
+- Each example should be importable and runnable via `uv run mcp run <filename>.py`.
+- Do not add manual entrypoints or prints—let the MCP CLI handle all execution and output.
+
+## Error Handling
+- If you encounter `os.getlogin` errors, patch with `os.getlogin = getpass.getuser` at the top of your script.
+- Do not add any other workaround prints or manual startup code.
+- For common issues and troubleshooting, see [README.md](mdc:README.md).
+
+## References
+- [MCP Quickstart: Server](https://modelcontextprotocol.io/quickstart/server)
+- [MCP Inspector Guide](https://modelcontextprotocol.io/docs/tools/inspector)
+- [MCP Python SDK Example](https://github.com/ruslanmv/Simple-MCP-Server-with-Python)
+- [Inspector Issue: Only works in VS Code browser](https://github.com/modelcontextprotocol/inspector/issues/337)
+
+- The server exposes an `add` tool and a `
