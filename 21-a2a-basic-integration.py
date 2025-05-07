@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Optional
 
 import httpx
 from mcp.server.fastmcp import FastMCP
-from mcp.types import Message, SystemMessage, UserMessage
+from mcp.types import SamplingMessage, TextContent
 
 # Initialize MCP server with both MCP tools and A2A capabilities
 mcp = FastMCP("MCP-A2A Bridge")
@@ -544,52 +544,40 @@ def get_conversation_history_resource(agent_id: str) -> str:
 
 # Enhanced Prompts
 @mcp.prompt()
-def agent_delegation_prompt(
-    task: str, agent_type: Optional[str] = None
-) -> List[Message]:
+def agent_delegation_prompt(task: str, agent_type: Optional[str] = None) -> list:
     """Generate a structured prompt for delegating a task to an appropriate agent"""
-
     system_message = "You are a task delegation assistant that helps format tasks for other AI agents."
-
     if agent_type:
-        user_message = f"""I need to delegate the following task to a {agent_type} agent:
-
-Task: {task}
-
-Please help me format this task in a clear, structured way that a {agent_type} agent would understand.
-Include any relevant instructions, constraints, and expected output format.
-"""
+        user_message = f"I need to delegate the following task to a {agent_type} agent:\n\nTask: {task}\n\nPlease help me format this task in a clear, structured way that a {agent_type} agent would understand.\nInclude any relevant instructions, constraints, and expected output format."
     else:
-        user_message = f"""I need to delegate the following task to another AI agent:
-
-Task: {task}
-
-Please help me format this task in a clear, structured way that would be appropriate for an agent to process.
-Include any relevant instructions, constraints, and expected output format.
-"""
-
-    return [SystemMessage(system_message), UserMessage(user_message)]
+        user_message = f"I need to delegate the following task to another AI agent:\n\nTask: {task}\n\nPlease help me format this task in a clear, structured way that would be appropriate for an agent to process.\nInclude any relevant instructions, constraints, and expected output format."
+    return [
+        SamplingMessage(
+            role="user", content=TextContent(type="text", text=system_message)
+        ),
+        SamplingMessage(
+            role="user", content=TextContent(type="text", text=user_message)
+        ),
+    ]
 
 
 @mcp.prompt()
-def agent_collaboration_prompt(task: str, agents: List[str]) -> List[Message]:
+def agent_collaboration_prompt(task: str, agents: list) -> list:
     """Generate a prompt for orchestrating collaboration between multiple agents"""
-
     agents_str = ", ".join(agents)
-
     return [
-        SystemMessage(
-            "You are a collaboration coordinator specializing in multi-agent task orchestration."
+        SamplingMessage(
+            role="user",
+            content=TextContent(
+                type="text",
+                text="You are a collaboration coordinator specializing in multi-agent task orchestration.",
+            ),
         ),
-        UserMessage(f"""I need to coordinate the following task across multiple agents: {agents_str}
-
-Task: {task}
-
-Please help me:
-1. Break down this task into components suitable for each agent
-2. Suggest a workflow for how these agents should collaborate
-3. Define what each agent should contribute
-4. Identify any potential coordination challenges
-
-This will help me effectively delegate work across these specialized agents."""),
+        SamplingMessage(
+            role="user",
+            content=TextContent(
+                type="text",
+                text=f"I need to coordinate the following task across multiple agents: {agents_str}\n\nTask: {task}\n\nPlease help me:\n1. Break down this task into components suitable for each agent\n2. Suggest a workflow for how these agents should collaborate\n3. Define what each agent should contribute\n4. Identify any potential coordination challenges\n\nThis will help me effectively delegate work across these specialized agents.",
+            ),
+        ),
     ]

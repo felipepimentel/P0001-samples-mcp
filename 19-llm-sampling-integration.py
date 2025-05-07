@@ -4,7 +4,7 @@ import time
 from typing import Dict, List, Optional
 
 from mcp.server.fastmcp import FastMCP
-from mcp.types import AssistantMessage, SystemMessage, UserMessage
+from mcp.types import SamplingMessage, TextContent
 
 mcp = FastMCP("LLM Sampling Integration")
 
@@ -30,11 +30,19 @@ async def summarize_with_llm(text: str, style: Optional[str] = "concise") -> str
 
     # Prepare the messages for the LLM
     messages = [
-        SystemMessage(
-            "You are a helpful AI assistant specialized in summarizing content."
+        SamplingMessage(
+            role="user",
+            content=TextContent(
+                type="text",
+                text="You are a helpful AI assistant specialized in summarizing content.",
+            ),
         ),
-        UserMessage(
-            f"Please summarize the following text in a {style} style:\n\n{text}"
+        SamplingMessage(
+            role="user",
+            content=TextContent(
+                type="text",
+                text=f"Please summarize the following text in a {style} style:\n\n{text}",
+            ),
         ),
     ]
 
@@ -73,19 +81,33 @@ async def answer_question(question: str, context: Optional[str] = None) -> str:
 
     # Prepare messages for the LLM
     messages = [
-        SystemMessage(
-            "You are a helpful AI assistant that answers questions accurately based on the provided context."
+        SamplingMessage(
+            role="user",
+            content=TextContent(
+                type="text",
+                text="You are a helpful AI assistant that answers questions accurately based on the provided context.",
+            ),
         ),
     ]
-
     if context:
         messages.append(
-            UserMessage(
-                f"Context information:\n\n{context}\n\nBased on this context, please answer the following question: {question}"
+            SamplingMessage(
+                role="user",
+                content=TextContent(
+                    type="text",
+                    text=f"Context information:\n\n{context}\n\nBased on this context, please answer the following question: {question}",
+                ),
             )
         )
     else:
-        messages.append(UserMessage(f"Please answer this question: {question}"))
+        messages.append(
+            SamplingMessage(
+                role="user",
+                content=TextContent(
+                    type="text", text=f"Please answer this question: {question}"
+                ),
+            )
+        )
 
     # Request a completion from the LLM
     try:
@@ -140,11 +162,19 @@ async def generate_creative_content(
 
     # Prepare messages for the LLM
     messages = [
-        SystemMessage(
-            f"You are a creative assistant specialized in generating {format}s in a {tone} tone."
+        SamplingMessage(
+            role="user",
+            content=TextContent(
+                type="text",
+                text=f"You are a creative assistant specialized in generating {format}s in a {tone} tone.",
+            ),
         ),
-        UserMessage(
-            f"Please create a {format} based on the following prompt, maintaining a {tone} tone:\n\n{prompt}"
+        SamplingMessage(
+            role="user",
+            content=TextContent(
+                type="text",
+                text=f"Please create a {format} based on the following prompt, maintaining a {tone} tone:\n\n{prompt}",
+            ),
         ),
     ]
 
@@ -192,11 +222,19 @@ async def extract_structured_data(text: str, schema: Dict[str, str]) -> str:
 
     # Prepare messages for the LLM
     messages = [
-        SystemMessage(
-            "You are a data extraction assistant that extracts structured information from text."
+        SamplingMessage(
+            role="user",
+            content=TextContent(
+                type="text",
+                text="You are a data extraction assistant that extracts structured information from text.",
+            ),
         ),
-        UserMessage(
-            f"Extract the following information from the text below. Return the data as a valid JSON object with these fields:\n\n{schema_description}\n\nText to analyze:\n\n{text}\n\nReturn ONLY a valid JSON object with the extracted data, nothing else."
+        SamplingMessage(
+            role="user",
+            content=TextContent(
+                type="text",
+                text=f"Extract the following information from the text below. Return the data as a valid JSON object with these fields:\n\n{schema_description}\n\nText to analyze:\n\n{text}\n\nReturn ONLY a valid JSON object with the extracted data, nothing else.",
+            ),
         ),
     ]
 
@@ -253,8 +291,16 @@ async def multi_turn_conversation(initial_prompt: str, follow_ups: List[str]) ->
 
     # Initialize the conversation
     conversation = [
-        SystemMessage("You are a helpful AI assistant engaged in a conversation."),
-        UserMessage(initial_prompt),
+        SamplingMessage(
+            role="user",
+            content=TextContent(
+                type="text",
+                text="You are a helpful AI assistant engaged in a conversation.",
+            ),
+        ),
+        SamplingMessage(
+            role="user", content=TextContent(type="text", text=initial_prompt)
+        ),
     ]
 
     # Build the conversation transcript
@@ -269,7 +315,12 @@ async def multi_turn_conversation(initial_prompt: str, follow_ups: List[str]) ->
         transcript.append(f"**Assistant**: {completion.content}\n")
 
         # Add the assistant's response to the conversation history
-        conversation.append(AssistantMessage(completion.content))
+        conversation.append(
+            SamplingMessage(
+                role="assistant",
+                content=TextContent(type="text", text=completion.content),
+            )
+        )
 
         # Process follow-up turns
         for i, follow_up in enumerate(follow_ups, 1):
@@ -278,7 +329,11 @@ async def multi_turn_conversation(initial_prompt: str, follow_ups: List[str]) ->
                 continue
 
             # Add the follow-up to the conversation
-            conversation.append(UserMessage(follow_up))
+            conversation.append(
+                SamplingMessage(
+                    role="user", content=TextContent(type="text", text=follow_up)
+                )
+            )
             transcript.append(f"\n**User**: {follow_up}\n")
 
             # Get response for this turn
@@ -286,7 +341,12 @@ async def multi_turn_conversation(initial_prompt: str, follow_ups: List[str]) ->
             transcript.append(f"**Assistant**: {completion.content}\n")
 
             # Add the assistant's response to the conversation history
-            conversation.append(AssistantMessage(completion.content))
+            conversation.append(
+                SamplingMessage(
+                    role="assistant",
+                    content=TextContent(type="text", text=completion.content),
+                )
+            )
 
         # Log the interaction
         sample_history.append(

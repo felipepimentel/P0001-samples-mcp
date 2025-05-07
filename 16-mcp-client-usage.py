@@ -4,7 +4,7 @@ import subprocess
 import tempfile
 from typing import Any, Dict, Optional
 
-from mcp.client import McpClient
+from mcp.client.session import ClientSession
 from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP("MCP Client Usage")
@@ -47,7 +47,7 @@ async def start_external_server() -> subprocess.Popen:
 class McpServerClient:
     def __init__(self, process: subprocess.Popen = None):
         self.process = process
-        self.client: Optional[McpClient] = None
+        self.client: Optional[ClientSession] = None
         self.tools: Dict[str, Any] = {}
         self.resources: Dict[str, Any] = {}
 
@@ -55,7 +55,7 @@ class McpServerClient:
         """Initialize the MCP client connection to the server"""
         if self.process:
             # Connect to the server process via stdio
-            self.client = McpClient(
+            self.client = ClientSession(
                 input_stream=self.process.stdout,
                 output_stream=self.process.stdin,
             )

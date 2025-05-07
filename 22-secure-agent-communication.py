@@ -14,7 +14,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 import httpx
 import jwt
 from mcp.server.fastmcp import FastMCP
-from mcp.types import Message, SystemMessage, UserMessage
+from mcp.types import SamplingMessage, TextContent
 
 # Initialize MCP server with secure communication features
 mcp = FastMCP("Secure Agent Communication")
@@ -976,41 +976,40 @@ def get_security_events_resource() -> str:
 
 # Enhanced Prompts
 @mcp.prompt()
-def secure_delegation_prompt(task: str, sensitivity: str) -> List[Message]:
+def secure_delegation_prompt(task: str, sensitivity: str) -> list:
     """Generate a structured prompt for securely delegating a sensitive task"""
-
     system_message = "You are a security-focused task delegation assistant. Your goal is to help format sensitive tasks securely."
-
-    user_message = f"""I need to securely delegate a {sensitivity}-sensitivity task to another agent:
-
-Task: {task}
-
-Please help me format this task in a secure way that:
-1. Minimizes unnecessary data exposure
-2. Provides clear scope and boundaries
-3. Includes appropriate security handling instructions
-4. Follows the principle of least privilege (only share what's needed)
-
-Be specific about any security precautions that should be taken with the response.
-"""
-
-    return [SystemMessage(system_message), UserMessage(user_message)]
+    user_message = f"I need to securely delegate a {sensitivity}-sensitivity task to another agent:\n\nTask: {task}\n\nPlease help me format this task in a secure way that:\n1. Minimizes unnecessary data exposure\n2. Provides clear scope and boundaries\n3. Includes appropriate security handling instructions\n4. Follows the principle of least privilege (only share what's needed)\n\nBe specific about any security precautions that should be taken with the response."
+    return [
+        SamplingMessage(
+            role="user", content=TextContent(type="text", text=system_message)
+        ),
+        SamplingMessage(
+            role="user", content=TextContent(type="text", text=user_message)
+        ),
+    ]
 
 
 @mcp.prompt()
-def security_assessment_prompt(agent_id: str) -> List[Message]:
+def security_assessment_prompt(agent_id: str) -> list:
     """Generate a prompt for assessing an agent's security posture"""
-
     agent = registered_agents.get(agent_id)
     if not agent:
         return [
-            SystemMessage("You are a security assessment specialist."),
-            UserMessage(
-                f"The agent with ID {agent_id} does not exist. Please recommend proper agent validation procedures."
+            SamplingMessage(
+                role="user",
+                content=TextContent(
+                    type="text", text="You are a security assessment specialist."
+                ),
+            ),
+            SamplingMessage(
+                role="user",
+                content=TextContent(
+                    type="text",
+                    text=f"The agent with ID {agent_id} does not exist. Please recommend proper agent validation procedures.",
+                ),
             ),
         ]
-
-    # Format agent information
     agent_info = {
         "id": agent.id,
         "name": agent.name,
@@ -1024,19 +1023,20 @@ def security_assessment_prompt(agent_id: str) -> List[Message]:
             "per_hour": agent.rate_limit.max_calls_per_hour,
         },
     }
-
     agent_json = json.dumps(agent_info, indent=2)
-
     return [
-        SystemMessage("You are a security assessment specialist for AI agents."),
-        UserMessage(f"""Please analyze this agent's security profile and provide:
-1. A comprehensive security assessment
-2. Potential vulnerabilities in the current configuration
-3. Recommendations for improving security
-4. What level of sensitive tasks this agent should be allowed to handle
-
-Agent Profile:
-{agent_json}
-
-Focus on role-based access control, rate limiting, and data handling risks."""),
+        SamplingMessage(
+            role="user",
+            content=TextContent(
+                type="text",
+                text="You are a security assessment specialist for AI agents.",
+            ),
+        ),
+        SamplingMessage(
+            role="user",
+            content=TextContent(
+                type="text",
+                text=f"Please analyze this agent's security profile and provide:\n1. A comprehensive security assessment\n2. Potential vulnerabilities in the current configuration\n3. Recommendations for improving security\n4. What level of sensitive tasks this agent should be allowed to handle\n\nAgent Profile:\n{agent_json}\n\nFocus on role-based access control, rate limiting, and data handling risks.",
+            ),
+        ),
     ]

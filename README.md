@@ -141,3 +141,16 @@ npx @modelcontextprotocol/inspector uv run mcp run 01-hello.py
 - [MCP Python SDK Example](https://github.com/ruslanmv/Simple-MCP-Server-with-Python)
 - [MCP Python SDK Docs](https://github.com/modelcontextprotocol/python-sdk/tree/45cea71d907cfabbcb359fe9e0b139126fc11edc)
 - [Inspector Issue: Only works in VS Code browser](https://github.com/modelcontextprotocol/inspector/issues/337)
+
+## MCP Example Suite: 01–23
+
+All examples (01-hello.py through 23-multi-agent-orchestration.py) are validated and compatible with the latest MCP Python SDK. 
+
+- All dependencies are managed via `pyproject.toml` (never install directly with pip/uv pip)
+- All LLM message types use `SamplingMessage` and `TextContent` (not `Message`, `SystemMessage`, or `UserMessage`)
+- Examples cover: tool composition, file/database/API integration, client/server, A2A, security/auth, multi-agent orchestration, and more
+- Each script can be run with:
+  ```sh
+  uv run mcp run <example.py>
+  ```
+- If you add new dependencies, declare them in `pyproject.toml` and run `uv sync`

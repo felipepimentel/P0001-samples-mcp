@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 from mcp.server.fastmcp import FastMCP
-from mcp.types import Message, SystemMessage, UserMessage
+from mcp.types import SamplingMessage, TextContent
 
 # Initialize MCP server for a research assistant application
 mcp = FastMCP("Research Assistant")
@@ -405,11 +405,19 @@ async def summarize_document(document_id: int, summary_type: str = "brief") -> s
 
         # Prepare messages for the LLM
         messages = [
-            SystemMessage(
-                "You are a research assistant specialized in summarizing academic content."
+            SamplingMessage(
+                role="user",
+                content=TextContent(
+                    type="text",
+                    text="You are a research assistant helping summarize documents.",
+                ),
             ),
-            UserMessage(
-                f"Please provide a {summary_type} summary of the following document:\nTitle: {document['title']}\n\nContent:\n{content}"
+            SamplingMessage(
+                role="user",
+                content=TextContent(
+                    type="text",
+                    text=f"Please provide a {summary_type} summary of the following document:\n\n{content}",
+                ),
             ),
         ]
 
@@ -463,11 +471,19 @@ async def extract_key_insights(document_id: int, num_insights: int = 5) -> str:
 
         # Prepare messages for the LLM
         messages = [
-            SystemMessage(
-                "You are a research assistant specialized in extracting key insights from academic content."
+            SamplingMessage(
+                role="user",
+                content=TextContent(
+                    type="text",
+                    text="You are an expert in extracting key insights from research documents.",
+                ),
             ),
-            UserMessage(
-                f"Extract exactly {num_insights} key insights from the following document. Format as a numbered list.\nTitle: {document['title']}\n\nContent:\n{content}"
+            SamplingMessage(
+                role="user",
+                content=TextContent(
+                    type="text",
+                    text=f"Extract the {num_insights} most important insights from the following document:\n\n{content}",
+                ),
             ),
         ]
 
@@ -620,11 +636,19 @@ async def generate_research_report(project_id: int, format: str = "markdown") ->
         project_json = json.dumps(project_data)
 
         messages = [
-            SystemMessage(
-                "You are a research assistant specialized in creating comprehensive research reports."
+            SamplingMessage(
+                role="user",
+                content=TextContent(
+                    type="text",
+                    text="You are a research assistant helping generate research reports.",
+                ),
             ),
-            UserMessage(
-                f"Generate a research report in {format} format based on the following project data. Include an executive summary, key findings, and recommendations.\n\nProject Data:\n{project_json}"
+            SamplingMessage(
+                role="user",
+                content=TextContent(
+                    type="text",
+                    text=f"Generate a research report for the following project:\n\n{project['description']}\n\nInclude summaries of all documents and key insights.",
+                ),
             ),
         ]
 
@@ -804,40 +828,40 @@ Please format your response as a numbered list."""
 
 
 @mcp.prompt()
-def literature_review_prompt(topic: str, num_sources: int = 3) -> List[Message]:
-    """Generate a structured prompt for creating a literature review on a topic"""
+def literature_review_prompt(topic: str, num_sources: int = 3) -> list:
+    """Generate a prompt for a literature review task"""
     return [
-        SystemMessage(
-            "You are a research assistant specialized in creating literature reviews."
+        SamplingMessage(
+            role="user",
+            content=TextContent(
+                type="text", text="You are a literature review assistant."
+            ),
         ),
-        UserMessage(f"""Help me create a literature review on the topic: {topic}.
-
-Please include:
-1. A brief overview of the topic
-2. Key theories and concepts
-3. At least {num_sources} hypothetical sources that would be valuable
-4. Gaps in the current research
-5. Suggestions for further research
-
-Format this as a structured literature review with appropriate headings."""),
+        SamplingMessage(
+            role="user",
+            content=TextContent(
+                type="text",
+                text=f"Help me create a literature review on the topic: {topic}.\nPlease include at least {num_sources} reputable sources and summarize the main findings for each.",
+            ),
+        ),
     ]
 
 
 @mcp.prompt()
-def methodology_analysis_prompt(methodology: str) -> List[Message]:
-    """Generate a structured prompt for analyzing a research methodology"""
+def methodology_analysis_prompt(methodology: str) -> list:
+    """Generate a prompt for methodology analysis"""
     return [
-        SystemMessage("You are a research methodology expert."),
-        UserMessage(f"""Analyze the strengths and weaknesses of the following research methodology: {methodology}.
-
-Please include:
-1. Overview of the methodology
-2. Key assumptions and theoretical foundations
-3. Strengths (at least 3)
-4. Limitations and weaknesses (at least 3)
-5. Scenarios where this methodology is particularly appropriate
-6. Scenarios where alternative methodologies might be better
-7. Suggestions for mitigating the weaknesses
-
-Format your response with clear headings and bullet points where appropriate."""),
+        SamplingMessage(
+            role="user",
+            content=TextContent(
+                type="text", text="You are a research methodology expert."
+            ),
+        ),
+        SamplingMessage(
+            role="user",
+            content=TextContent(
+                type="text",
+                text=f"Analyze the strengths and weaknesses of the following research methodology: {methodology}.",
+            ),
+        ),
     ]

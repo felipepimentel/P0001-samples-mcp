@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from mcp.server.fastmcp import FastMCP
-from mcp.types import Message, SystemMessage, UserMessage
+from mcp.types import SamplingMessage, TextContent
 
 # Initialize MCP server for multi-agent orchestration
 mcp = FastMCP("Multi-Agent Orchestration")
@@ -281,7 +281,14 @@ async def simulate_agent_work(
     user_message = f"Task: {task.title}\n\nDescription: {task.description}\n\n{prompt}"
 
     # Use LLM to simulate agent's work
-    messages = [SystemMessage(system_message), UserMessage(user_message)]
+    messages = [
+        SamplingMessage(
+            role="user", content=TextContent(type="text", text=system_message)
+        ),
+        SamplingMessage(
+            role="user", content=TextContent(type="text", text=user_message)
+        ),
+    ]
 
     try:
         # Sample from LLM
@@ -873,7 +880,7 @@ def get_workflow_results_resource(workflow_id: str) -> str:
 @mcp.prompt()
 def collaborative_task_prompt(
     task_description: str, agent_role: str, previous_results: Dict[str, str] = None
-) -> List[Message]:
+) -> List[SamplingMessage]:
     """Generate a structured prompt for a collaborative task"""
 
     role_specializations = {
@@ -899,31 +906,37 @@ you are part of a collaborative workflow where other agents will build upon your
 
     user_message += "\nComplete your part of this collaborative task, focusing on your role as a specialized agent."
 
-    return [SystemMessage(system_message), UserMessage(user_message)]
+    return [
+        SamplingMessage(
+            role="user", content=TextContent(type="text", text=system_message)
+        ),
+        SamplingMessage(
+            role="user", content=TextContent(type="text", text=user_message)
+        ),
+    ]
 
 
 @mcp.prompt()
 def workflow_design_prompt(
     objective: str, available_agent_roles: List[str]
-) -> List[Message]:
+) -> List[SamplingMessage]:
     """Generate a prompt for designing a multi-agent workflow"""
 
     roles_str = ", ".join(available_agent_roles)
 
     return [
-        SystemMessage(
-            "You are a workflow design specialist experienced in creating effective multi-agent systems."
+        SamplingMessage(
+            role="user",
+            content=TextContent(
+                type="text",
+                text="You are a workflow design expert specializing in multi-agent orchestration.",
+            ),
         ),
-        UserMessage(f"""Help me design a multi-agent workflow to achieve this objective: {objective}
-
-Available agent roles: {roles_str}
-
-Please provide:
-1. A structured breakdown of the workflow (3-6 sequential steps)
-2. Which agent roles should handle each step
-3. The specific tasks each agent should complete
-4. How information should flow between agents
-5. How to evaluate the final output
-
-Focus on creating a workflow where agents with different specializations collaborate efficiently."""),
+        SamplingMessage(
+            role="user",
+            content=TextContent(
+                type="text",
+                text=f"Help me design a multi-agent workflow to achieve this objective: {objective}\nPlease:\n1. Identify the key roles needed\n2. Suggest a sequence of tasks for each agent\n3. Describe how agents should communicate and share results\n4. Highlight any coordination or dependency issues\n\nFormat your response as a structured workflow plan.",
+            ),
+        ),
     ]
