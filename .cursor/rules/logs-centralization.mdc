@@ -1,0 +1,10 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Log File Centralization Rule
+
+All `.log` files must be stored in the [`/logs`](mdc:logs) directory. Any code or process that generates log output should write logs to this centralized location. Log files should not be placed in the project root or scattered across other directories.
+
+If you find log files outside of [`/logs`](mdc:logs), move them to this directory to maintain consistency and project cleanliness.
