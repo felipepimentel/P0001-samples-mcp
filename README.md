@@ -90,13 +90,9 @@ The examples are organized by complexity, starting with basic implementations an
 - Monitoring and alerts
 - Versioning management
 
-### MCP DevOps Platform Demo (76 & mcp-platform-demo/)
-A comprehensive demo showcasing MCP in a DevOps environment, featuring:
-- Intelligent API creation and governance
-- Infrastructure management
-- Problem investigation with AI assistance
-- Chaos engineering
-- Developer onboarding
+### Showcase Demos (76-77)
+- **MCP DevOps Platform Demo (76 & mcp-platform-demo/)**: A comprehensive demo showcasing MCP in a DevOps environment, featuring intelligent API creation and governance, infrastructure management, problem investigation, and chaos engineering.
+- **AI Code Companion (77)**: VSCode integration for AI-powered code generation, intelligent code review, and contextual debugging assistance.
 
 ## MCP DevOps Platform Demo
 
@@ -110,11 +106,25 @@ To run the demo:
 
 For more details, see the [platform README](mcp-platform-demo/README.md).
 
+## AI Code Companion Demo
+
+The AI Code Companion demonstrates how MCP can enhance VSCode and Copilot to provide more powerful AI-assisted development:
+
+1. Run the interactive demo: `python 77-mcp-copilot-code-companion.py`
+2. Explore the MCP server implementation in `mcp-platform-demo/mcp-servers/code_companion.py`
+3. View the [VSCode Extension Documentation](mcp-platform-demo/VSCodeMCPExtension.md) and [Visual Demo](mcp-platform-demo/VSCodeMCPScreenshot.md)
+
+Key features include:
+- Smart code generation with contextual awareness
+- Intelligent code review with security and quality checks
+- AI-powered debugging assistance
+- Architecture and design recommendations
+
 ## Documentation
 
 For more information about MCP:
-- [MCP Documentation](https://mcp.docs.example.com)
-- [MCP GitHub Repository](https://github.com/example/mcp)
+- [MCP Documentation](https://modelcontextprotocol.io)
+- [MCP GitHub Repository](https://github.com/modelcontextprotocol/modelcontextprotocol)
 
 ## License
 
