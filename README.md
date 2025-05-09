@@ -1,156 +1,121 @@
-# MCP Hello World Server
+# Model Context Protocol (MCP) Samples
 
-A minimal Python MCP server exposing an `add` tool and a dynamic `greeting` resource, managed entirely with [uv](https://astral.sh/uv/) and the MCP CLI.
-
----
+This repository contains comprehensive examples of how to use the Model Context Protocol (MCP) for building intelligent agent applications.
 
 ## Overview
-- **Language:** Python 3.12.3+
-- **Environment:** Managed with [uv](https://astral.sh/uv/)
-- **Entrypoint:** `01-hello.py`
-- **Features:**
-  - Tool: `add(a: int, b: int)`
-  - Resource: `greeting://{name}`
-- **No manual startup or print statements—MCP CLI manages all execution.**
 
----
+Model Context Protocol (MCP) is a protocol for connecting large language models (LLMs) to tools, enabling agents to interact with external systems. This repository demonstrates various MCP implementations from basic to advanced use cases.
 
-## Setup
+## Getting Started
 
-```sh
-# Install uv if not present
-curl -LsSf https://astral.sh/uv/install.sh | sh
+1. Clone this repository
+2. Create a virtual environment: `python -m venv .venv`
+3. Activate the environment: 
+   - Linux/Mac: `source .venv/bin/activate`
+   - Windows: `.venv\Scripts\activate`
+4. Install dependencies: `pip install -e .`
 
-# Create and activate virtual environment
-uv venv
-source .venv/bin/activate
+## Example Structure
 
-# Install dependencies from pyproject.toml
-uv sync
-```
+The examples are organized by complexity, starting with basic implementations and progressing to advanced use cases:
 
----
+### Basic Examples (01-10)
+- Simple tool implementations
+- Math operations
+- Dynamic resources
+- Prompt handling
+- External API integration
+- Stateful resources
+- Asynchronous operations
+- Error handling
+- Multi-tool usage
+- Advanced prompting techniques
 
-## Running the Server
+### Intermediate Examples (11-30)
+- Tool composition
+- File operations
+- Database integration
+- API integration
+- Complex data models
+- Client usage
+- Security and authentication
+- Machine learning integration
+- LLM sampling
+- Complete application integration
+- Agent-to-agent communication
+- Websockets
+- Telemetry
+- OAuth implementation
+- Multimodal tools
+- SSE progress reporting
+- Redis pub/sub
+- File operations
+- FastAPI integration
 
-### Development Mode (with Inspector)
-- For interactive exploration, debugging, and live testing:
+### Advanced Examples (31-65)
+- Integration with various systems (GitHub, pandas, Docker, messaging platforms)
+- PDF extraction
+- Task scheduling
+- Environment variable management
+- Protocol inspection
+- Session lifecycle management
+- Capability negotiation
+- Custom transports
+- Client implementations
+- Notification systems
+- Sampling mechanisms
+- Progress tracking
+- Authorization flows
+- Resource management
+- Schema validation
+- Protocol extensions
+- Cross-server communication
+- Persistence and caching
+- Compliance automation
+- Developer tooling
+- Debugging tools
+- Legacy system migration
+- Browser automation
+- Environmental data analysis
+- Document analysis
 
-```sh
-uv run mcp dev 01-hello.py
-```
-- Opens the MCP Inspector at [http://127.0.0.1:6274](http://127.0.0.1:6274)
-- Inspector lets you:
-  - List/test all tools, resources, and prompts
-  - Send requests and see responses live
-  - Debug server behavior interactively
+### API Governance Suite (66-75)
+- API discovery tools
+- Context helpers
+- Error analyzers
+- Test runners
+- Contract validators
+- API-to-MCP transformers
+- Security auditing
+- Monitoring and alerts
+- Versioning management
 
-### Production Mode (STDIO, for integration)
-- For integration with Claude Desktop or other MCP clients:
+### MCP DevOps Platform Demo (76 & mcp-platform-demo/)
+A comprehensive demo showcasing MCP in a DevOps environment, featuring:
+- Intelligent API creation and governance
+- Infrastructure management
+- Problem investigation with AI assistance
+- Chaos engineering
+- Developer onboarding
 
-```sh
-uv run mcp run 01-hello.py
-```
-- No web dashboard or HTTP port
-- All communication via STDIO (MCP protocol only)
-- **Never print to stdout in your code**
+## MCP DevOps Platform Demo
 
----
+The `mcp-platform-demo/` directory contains a complete DevOps platform powered by MCP, allowing AI agents to perform complex DevOps tasks through natural language interaction.
 
-## Using the MCP Inspector (Manual/Advanced)
+To run the demo:
+1. Navigate to the demo directory: `cd mcp-platform-demo`
+2. Run the start script: `./start-demo.sh`
+3. Access the dashboard at http://localhost:3001
+4. Run the demo script: `python ../76-mcp-devops-platform-demo.py`
 
-You can run the Inspector manually for any MCP server (Python, Node, etc):
+For more details, see the [platform README](mcp-platform-demo/README.md).
 
-```sh
-npx @modelcontextprotocol/inspector uv run mcp run 01-hello.py
-```
-- This opens the Inspector and connects to your server via STDIO.
-- Useful for debugging, CI, or when not using the MCP CLI dev mode.
-- If you see `PORT IS IN USE`, kill the process using the port (e.g. `lsof -i :6277` and `kill <pid>`).
+## Documentation
 
----
+For more information about MCP:
+- [MCP Documentation](https://mcp.docs.example.com)
+- [MCP GitHub Repository](https://github.com/example/mcp)
 
-## Best Practices
-- **No `if __name__ == "__main__"` blocks or manual startup code.**
-- **No print/log statements to stdout.** Use CLI flags (`--verbose`, `--debug`) for logs.
-- Use only `uv` and `pyproject.toml` for environment and dependencies—never pip or requirements.txt.
-- Place new examples in the project root or a clearly named subdirectory, following naming conventions.
-- Avoid duplicate or confusing file names.
-- Each example must be runnable via `uv run mcp run <filename>.py`.
+## License
 
----
-
-## Error Handling & Troubleshooting
-- For `os.getlogin` errors, patch with `os.getlogin = getpass.getuser` at the top of your script.
-- Never add workaround prints or manual startup code.
-- Common issues:
-  - `FileNotFoundError`: Check your server path.
-  - `Connection refused`: Ensure the server is running and the path is correct.
-  - `Tool execution failed`: Verify required environment variables.
-  - `Timeout error`: Increase client timeout if needed.
-  - `PORT IS IN USE`: Find and kill the process using the port (e.g. `lsof -i :6277 | grep LISTEN` and `kill <pid>`).
-- If Inspector shows only logs like `Processing request of type ...` but nothing is listed:
-  - Check for prints/logs in your code (should be none)
-  - Ensure your server is using the latest MCP Python SDK and follows the official example
-  - Try running Inspector in the VS Code Simple Browser if Chrome/Edge fails ([issue #337](https://github.com/modelcontextprotocol/inspector/issues/337))
-- For verbose logs, use:
-  ```sh
-  npx @modelcontextprotocol/inspector uv run mcp run 01-hello.py --verbose
-  ```
-
----
-
-## Inspector Tips
-- Use Inspector (`mcp dev` or manual) for rapid iteration and debugging.
-- Inspector shows all registered tools, resources, and prompts.
-- Test tool calls, resource reads, and prompt invocations directly from the web UI.
-- Inspector is only available in dev mode or via npx/manual.
-- If Inspector does not connect, check for protocol errors, port conflicts, or browser issues.
-
----
-
-## Useful Commands
-
-- **Start dev mode with Inspector:**
-  ```sh
-  uv run mcp dev 01-hello.py
-  ```
-- **Start production mode (STDIO):**
-  ```sh
-  uv run mcp run 01-hello.py
-  ```
-- **Run Inspector manually:**
-  ```sh
-  npx @modelcontextprotocol/inspector uv run mcp run 01-hello.py
-  ```
-- **Check for process using port 6277:**
-  ```sh
-  lsof -i :6277 | grep LISTEN
-  ```
-- **Kill process by PID:**
-  ```sh
-  kill <pid>
-  ```
-
----
-
-## References
-- [MCP Quickstart: Server](https://modelcontextprotocol.io/quickstart/server)
-- [MCP Inspector Guide](https://modelcontextprotocol.io/docs/tools/inspector)
-- [MCP Inspector Medium Example](https://thesof.medium.com/build-your-first-mcp-application-step-by-step-examples-for-stdio-and-sse-servers-integration-773b187aeaed)
-- [MCP Python SDK Example](https://github.com/ruslanmv/Simple-MCP-Server-with-Python)
-- [MCP Python SDK Docs](https://github.com/modelcontextprotocol/python-sdk/tree/45cea71d907cfabbcb359fe9e0b139126fc11edc)
-- [Inspector Issue: Only works in VS Code browser](https://github.com/modelcontextprotocol/inspector/issues/337)
-
-## MCP Example Suite: 01–23
-
-All examples (01-hello.py through 23-multi-agent-orchestration.py) are validated and compatible with the latest MCP Python SDK. 
-
-- All dependencies are managed via `pyproject.toml` (never install directly with pip/uv pip)
-- All LLM message types use `SamplingMessage` and `TextContent` (not `Message`, `SystemMessage`, or `UserMessage`)
-- Examples cover: tool composition, file/database/API integration, client/server, A2A, security/auth, multi-agent orchestration, and more
-- Each script can be run with:
-  ```sh
-  uv run mcp run <example.py>
-  ```
-- If you add new dependencies, declare them in `pyproject.toml` and run `uv sync`
+This project is licensed under the MIT License - see the LICENSE file for details.

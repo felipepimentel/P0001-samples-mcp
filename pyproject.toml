@@ -18,4 +18,5 @@ dependencies = [
     "PyPDF2>=3.0.1",
     "apscheduler>=3.10.4",
     "sse-starlette>=2.3.4",
+    "requests>=2.31.0",
 ]

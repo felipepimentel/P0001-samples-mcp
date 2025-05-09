@@ -1,0 +1,36 @@
+name: traffic_spike
+description: Simulates a sudden spike in traffic to test system elasticity
+
+parameters:
+  duration: 300  # seconds
+  intensity: high  # low, medium, high
+  target_services:
+    - user-service
+    - order-service
+
+effects:
+  - type: rps_multiplier
+    value: 5.0  # 5x normal traffic
+    services: 
+      - user-service
+      - order-service
+  
+  - type: error_rate_adjustment
+    value: 0.05  # +5% error rate during spike
+    services:
+      - user-service
+      - order-service
+      - payment-service
+
+expected_outcomes:
+  - Auto-scaling triggers for target services
+  - Rate limiting activates
+  - Circuit breakers open selectively
+  - Recovery within 60 seconds after scenario ends
+
+metrics_to_monitor:
+  - system_cpu_usage
+  - service_memory_usage
+  - request_latency_p99
+  - error_rate
+  - auto_scale_events 

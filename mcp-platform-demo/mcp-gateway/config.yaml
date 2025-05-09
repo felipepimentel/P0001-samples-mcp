@@ -1,0 +1,105 @@
+# MCP Gateway Configuration
+
+# MCP Server settings
+server:
+  name: "MCP DevOps Platform"
+  description: "Intelligent DevOps platform powered by MCP"
+  version: "1.0.0"
+  port: 8888
+  websocket_port: 9999
+  
+# Dashboard settings
+dashboard:
+  enabled: true
+  auto_refresh: 5000  # ms
+  theme: "dark"
+
+# Services configuration
+services:
+  # API Gateway (Kong)
+  kong:
+    host: "kong"
+    admin_port: 8001
+    proxy_port: 8000
+    
+  # Databases
+  postgres:
+    host: "postgres"
+    port: 5432
+    user: "demo"
+    password: "demo"
+    databases:
+      - "platform"
+      - "kong"
+      - "metrics"
+      
+  redis:
+    host: "redis"
+    port: 6379
+    
+  # Message Broker
+  rabbitmq:
+    host: "rabbitmq"
+    port: 5672
+    management_port: 15672
+    user: "demo"
+    password: "demo"
+    
+  # Observability
+  prometheus:
+    host: "prometheus"
+    port: 9090
+    
+  grafana:
+    host: "grafana"
+    port: 3000
+    admin_user: "admin"
+    admin_password: "demo"
+    
+  jaeger:
+    host: "jaeger"
+    port: 16686
+    
+# Microservices
+microservices:
+  user_service:
+    name: "user-service"
+    port: 8080
+    endpoints:
+      - "/api/users"
+      - "/api/auth"
+      
+  payment_service:
+    name: "payment-service"
+    port: 8080
+    endpoints:
+      - "/api/payments"
+      - "/api/transactions"
+      
+  order_service:
+    name: "order-service"
+    port: 8080
+    endpoints:
+      - "/api/orders"
+      - "/api/cart"
+      
+# Demo settings
+demo:
+  enabled: true
+  scenarios:
+    - "traffic_patterns"
+    - "service_failures"
+    - "memory_leaks"
+    - "deployments"
+    - "scaling"
+    - "chaos_engineering"
+  auto_recovery: true
+  simulation_interval: 300  # seconds
+
+# Logging
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  console: true
+  file: true
+  file_path: "/app/logs/gateway.log" 

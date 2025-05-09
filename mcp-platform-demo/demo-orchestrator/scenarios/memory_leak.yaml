@@ -1,0 +1,29 @@
+name: memory_leak
+description: Simulates a memory leak in the order service to test monitoring and alerting
+
+parameters:
+  duration: 600  # seconds
+  leak_rate: 10  # MB per minute
+  target_service: order-service
+
+effects:
+  - type: memory_growth
+    value: 10  # MB per minute
+    service: order-service
+  
+  - type: response_degradation
+    value: 0.05  # +5% to latency per minute
+    service: order-service
+
+expected_outcomes:
+  - Memory alert triggers at 80% threshold
+  - Performance degradation detected
+  - Resource constraint identified by MCP Gateway
+  - Container restart if memory exceeds limits
+
+metrics_to_monitor:
+  - service_memory_usage
+  - gc_overhead
+  - request_latency_p99
+  - error_rate
+  - container_restarts 
